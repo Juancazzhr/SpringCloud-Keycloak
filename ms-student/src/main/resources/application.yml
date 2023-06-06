@@ -1,0 +1,58 @@
+# Own property
+app:
+  jwtk: 'http://localhost:8080/realms/academy/protocol/openid-connect/certs'
+  resource_id: ${client_id}
+  instance_id: ${random.value}
+
+spring:
+  application:
+    name: ms-students
+
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak-provider:
+            issuer-uri: 'http://localhost:8080/realms/academy'
+        registration:
+          ms-students:
+            provider: keycloak-provider
+            client-id: ${client_id}
+            client-secret: ${client_secret}
+            scope:
+              - openid
+            redirect-uri: 'http://localhost:8081/login/oauth2/code/keycloak'
+
+server:
+  port: ${port:0}
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://${eureka_host:localhost}:8761/eureka/
+  instance:
+    hostname: ${ms_students_host:localhost}
+    instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${app.instance_id}}}
+
+info:
+  app: students
+  name: ms-students
+  description: Microservice to students management
+  version: 1.0.0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  info:
+    env:
+      enabled: true
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

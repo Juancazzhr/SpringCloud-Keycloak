@@ -1,0 +1,46 @@
+version: '3.9'
+name: academy
+
+services:
+
+    mysql:
+        image: mysql:8.0
+        container_name: keycloak-mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: keycloak
+            MYSQL_USER: keycloak
+            MYSQL_PASSWORD: change_me
+        volumes:
+            - kc-mysql-vol:/var/lib/mysql:rw
+        ports:
+            - 3307:3306
+        
+    keycloak:
+        container_name: keycloak-server
+        image: quay.io/keycloak/keycloak:21.1.1
+        environment:
+            KEYCLOAK_ADMIN: admin
+            KEYCLOAK_ADMIN_PASSWORD: change_me
+            KC_DB: mysql
+            KC_DB_DRIVER: mysql
+            KC_DB_URL: jdbc:mysql://mysql/keycloak
+            KC_DB_URL_PORT: 3306
+            KC_DB_USERNAME: keycloak
+            KC_DB_PASSWORD: change_me
+        ports:
+            - '8080:8080'
+            - '8443:8443'
+        expose:
+            - '8080'
+            - '8443'
+        command: start-dev
+        volumes:
+            - kc-server-vol:/opt/keycloak/data/:rw
+        depends_on:
+            - mysql
+
+volumes:
+    kc-server-vol:
+    kc-mysql-vol:
+        
